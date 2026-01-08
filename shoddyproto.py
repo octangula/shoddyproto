@@ -1,8 +1,6 @@
 # rika
 # py 3.10
 
-# {"k1": {"nested_dict": "val1"}, "k2": ["v2", "v3"]} <-> ["val1", "v2", "v3"] when k2 is defined in a schema
-
 import os, json
 
 def to_json(o, s, aslist=False):
@@ -16,19 +14,19 @@ def to_json(o, s, aslist=False):
         return [to_json(o[i*len(s[0]):(i+1)*len(s[0])], s[0]) for i in range(int(len(o) / len(s[0])))]
 
     elif isinstance(s, dict):
-        new = s.copy() # don't overwrite the schema silly
+        new = s.copy()
         for k, v in s.items():
             if isinstance(v, int):
                 new[k] = o[v] if len(o) > v else False # default to False
             elif isinstance(v, dict):
                 new[k] = to_json(o, v)
-            elif isinstance(v, list): # v[0] is th index thingy and v[1] is the actual schema bit for that list
+            elif isinstance(v, list): # v[0] is the index and v[1] is the actual schema bit for that list
                 new[k] = to_json(o[v[0]], [v[1]]) if len(o) > v[0] else [] # default to []
         return new
 
     raise Exception(f"schema should be list/dict or name of pre-defined schema, not {type(s)}")
 
-def to_proto(o, s, aslist=False): # this is stupid and i hate everything
+def to_proto(o, s, aslist=False):
     if isinstance(s, str):
         s = get_schema(s, listdef=True)
 
@@ -95,3 +93,4 @@ def get_schema(name, listdef=False):
         return d
 
     return remove_lists(schema)
+
